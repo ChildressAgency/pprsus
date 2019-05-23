@@ -149,4 +149,4 @@ add_filter('acf/validate_value', 'psr_skip_validation', 10, 4);
 function psr_hide_required_field(){
   echo '<style type="text/css">.acf-field-setting-required{ display:none; }</style>';
 }
-add_action('acf/field_group/admin_head', 'psr_hide_required_field');
+//add_action('acf/field_group/admin_head', 'psr_hide_required_field');
