@@ -131,7 +131,7 @@ if(!class_exists('PPRSUS_Worksheet')){
           'field_groups' => $current_step_group,
           'submit_value' => $submit_label,
           'html_after_fields' => $this->output_custom_fields($args),
-          'return' => $return;
+          'return' => $return
         )
       );
     }
