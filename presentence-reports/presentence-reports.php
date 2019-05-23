@@ -9,7 +9,133 @@
  */
 if(!defined('ABSPATH')){ exit; }
 
-define('PPRSUS_PLUGIN_DIR', dirname(__FILE__));
-define('PPRSUS_PLUGIN_URL', plugin_dir_url(__FILE__));
 
-if(!class_exists(''))
+/**
+ * Define global constants
+ */
+if(!defined('PPRSUS_PLUGIN_DIR')){
+  define('PPRSUS_PLUGIN_DIR', dirname(__FILE__));
+}
+
+if(!defined('PPRSUS_PLUGIN_URL')){
+  define('PPRSUS_PLUGIN_URL', plugin_dir_url(__FILE__));
+}
+
+if(!defined('PPRSUS_VERSION')){
+  define('PPRSUS_VERSION', '2.0.0');
+}
+
+if(!class_exists('PPRSUS_Reports')){
+  class PPRSUS_Reports{
+    public function __construct(){
+      $this->load_dependencies();
+      $this->init();
+    }
+
+    public function load_dependencies(){
+      if(!class_exists('acf')){
+        require_once PPRSUS_PLUGIN_DIR . '/vendors/advanced-custom-fields-pro/acf.php';
+        add_filter('acf/settings/path', array($this, 'acf_settings_path'));
+        add_filter('acf/settings/dir', array($this, 'acf_settings_dir'));
+      }
+
+      require_once PPRSUS_PLUGIN_DIR . 'classes/class-pprsus-worksheet.php';
+      require_once PPRSUS_PLUGIN_DIR . 'classes/class-pprsus-post-types.php';
+    }
+
+    public function init(){
+      add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+      add_action('init', array($this, 'load_textdomain'));
+
+      $post_types = new PPRSUS_Post_Types();
+
+      //add_shortcode('pprsus_dashboard', array($this, 'dashboard_shortcode'));
+      add_shortcode('pprsus_worksheet', array($this, 'worksheet_shortcode'));
+    }
+
+    public function load_textdomain(){
+      load_plugin_textdomain('pprsus', false, basename(dirname(__FILE__)) . '/languages');
+    }
+
+    public function enqueue_scripts(){
+      wp_register_script(
+        'pprsus-script',
+        PPRSUS_PLUGIN_URL . 'js/pprsus-scripts.js',
+        array('jquery'),
+        '',
+        true
+      );
+
+      wp_register_script(
+        'tablefilter',
+        PPRSUS_PLUGIN_URL . 'vendors/tablefilter/tablefilter.js',
+        array('jquery'),
+        '',
+        true
+      );
+
+      wp_enqueue_script('pprsus-script');
+      wp_enqueue_script('tablefilter');
+
+
+      //styles
+      wp_register_style(
+        'pprsus-style',
+        PPRSUS_PLUGIN_URL . 'css/pprsus-style.css',
+      );
+
+      wp_register_style(
+        'tablefilter-style',
+        PPRSUS_PLUGIN_URL . 'cvndors/tablefilter/style/tablefilter.css'
+      );
+
+      wp_enqueue_style('pprsus-style');
+      wp_enqueue_style('tablefilter-style');
+    }//end enqueue scripts
+
+    public function acf_settings_path($path){
+      $path = plugin_dir_path(__FILE__) . 'vendors/advanced-custom-fields-pro';
+      return $path;
+    }
+
+    public function acf_settings_dir($dir){
+      $dir = plugin_dir_url(__FILE__) . 'vendors/advanced-custom-fields-pro';
+      return $dir;
+    }
+
+    public function dashboard_shortcode($atts){
+      ob_start();
+
+      require_once PPRSUS_PLUGIN_DIR . '/includes/dashboard_shortcode.php';
+
+      return ob_get_clean();
+    }
+
+    public function worksheet_shortcode($atts){
+      $atts = shortcode_atts(array(
+        'form_post_type' => '',
+      ), $atts, 'pprsus_worksheet');
+
+      $form_post_type = $atts['form_post_type'];
+
+      if($form_post_type == ''){
+        $missing_post_type_message = '<p>' . esc_html__('You must set the form post type in the shortcode. ex: [ppsrsus_worksheet form_post_type="post_type"]', 'conversational') . '</p>';
+
+        return $missing_post_type_message;
+      }
+
+      $worksheet = new PPRSUS_Worksheet($form_post_type);
+
+      ob_start();
+
+      if(!function_exists('acf_form')){ return; }
+
+      $worksheet->output_acf_form(array('post_type' => $form_post_type));
+
+      return ob_get_clean();
+    }
+
+  }//end class
+}
+
+new PPRSUS_Reports();
