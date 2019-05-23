@@ -39,8 +39,8 @@ if(!class_exists('PPRSUS_Reports')){
         add_filter('acf/settings/dir', array($this, 'acf_settings_dir'));
       }
 
-      require_once PPRSUS_PLUGIN_DIR . 'classes/class-pprsus-worksheet.php';
-      require_once PPRSUS_PLUGIN_DIR . 'classes/class-pprsus-post-types.php';
+      require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-worksheet.php';
+      require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-post-types.php';
     }
 
     public function init(){
@@ -81,7 +81,7 @@ if(!class_exists('PPRSUS_Reports')){
       //styles
       wp_register_style(
         'pprsus-style',
-        PPRSUS_PLUGIN_URL . 'css/pprsus-style.css',
+        PPRSUS_PLUGIN_URL . 'css/pprsus-style.css'
       );
 
       wp_register_style(
