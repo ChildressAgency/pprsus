@@ -31,18 +31,19 @@ if(!class_exists('PPRSUS_Worksheet')){
      */
     private $step_ids;
 
-    public function __construct($param1){
+    public function __construct(){
       $this->load_dependencies();
 
-      $this->form_post_type = $param1;
+      //$this->form_post_type = $param1;
       $this->form_id = $this->form_post_type . '_worksheet';
-      $this->step_ids = $this->get_form_step_ids();
+      $this->step_ids = $this->get_form_steps_ids();
 
       //$this->output_shortcode();
+      add_shortcode('pprsus_worksheet', array($this, 'output_shortcode'));
 
       add_action('acf/validate_save_post', array($this, 'skip_validation'), 10, 0);
 
-      add_action('acf/save_post', array($this, 'process acf_form'), 20);
+      add_action('acf/save_post', array($this, 'process_acf_form'), 20);
     }
 
     public function load_dependencies(){
@@ -80,12 +81,56 @@ if(!class_exists('PPRSUS_Worksheet')){
       }
     }
 
+    /*public function output_shortcode(){
+     // ob_start();
+
+      if(!function_exists('acf_form')){ return; }
+
+      if(!$this->current_multistep_form_is_finished()){
+        $this->output_acf_form(array('post_type' => $this->form_post_type));
+      }
+      else{
+        wp_safe_redirect(home_url('dashboard'));
+        exit();
+      }
+
+     // return ob_get_clean();
+    }*/
+
+    public function output_shortcode($atts){
+       $atts = shortcode_atts(array(
+        'form_post_type' => '',
+      ), $atts, 'pprsus_worksheet');
+
+      $this->form_post_type = $atts['form_post_type'];
+
+      ob_start();
+
+      if(!function_exists('acf_form')){ return; }
+
+      if(!post_type_exists($this->form_post_type)){
+        $missing_post_type_message = '<p>' . esc_html__('You must set the form post type in the shortcode. ex: [ppsrsus_worksheet form_post_type="post_type"]', 'conversational') . '</p>';
+
+        return $missing_post_type_message;
+      }
+
+      if(!$this->current_multistep_form_is_finished()){
+        $this->output_acf_form(array('post_type' => $this->form_post_type));
+      }
+      else{
+        wp_safe_redirect(home_url('dashboard'));
+        exit();
+      }
+
+      return ob_get_clean();
+    }
+
     /**
      * Output the acf frontend form if logged in,
      * otherwise show login/register
      * Requires 'acf_form_head()' in the header of the theme
      */
-    private function output_acf_form($args = []){
+    public function output_acf_form($args = []){
       //if step 1 create new post, otherwise get post_id from url
       $requested_post_id = $this->get_requested_post_id();
 
@@ -131,7 +176,7 @@ if(!class_exists('PPRSUS_Worksheet')){
           'field_groups' => $current_step_group,
           'submit_value' => $submit_label,
           'html_after_fields' => $this->output_custom_fields($args),
-          'return' => $return
+          //'return' => $return
         )
       );
     }
@@ -144,21 +189,21 @@ if(!class_exists('PPRSUS_Worksheet')){
      */
     private function output_custom_fields($args){
       $inputs = array();
-      $inputs[] = sprintf('<input type="hidden" name="pprsus-form-id" value="%1$s" />', $this->form_id);
+      $inputs[] = sprintf('<div class="clearfix"></div><input type="hidden" name="pprsus-form-id" value="%1$s" />', $this->form_id);
       $inputs[] = isset($args['step']) ? sprintf('<input type="hidden" name="pprsus-current-step" value="%1$s" />', $args['step']) : '';
 
       if($this->get_requested_step() != 1){
-        $inputs[] = '<input type="button" id="cai-previous" name="previous" class="btn-main cai-submit" value="' . esc_html__('Previous', 'pprsus') . '" />';
+        $inputs[] = '<input type="button" id="cai-previous" name="previous" class="acf-button button button-primary button-large cai-submit" value="' . esc_html__('Previous', 'pprsus') . '" />';
       }
 
       if($args['step'] < count($this->step_ids)){
-        $inputs[] = '<input type="button" id="cai-next" name="next" class="btn-main cai-submit" value="' . esc_html__('Next', 'pprsus') . '" />';
+        $inputs[] = '<input type="button" id="cai-next" name="next" class="acf-button button button-primary button-large cai-submit" value="' . esc_html__('Next', 'pprsus') . '" />';
       }
       else{
-        $inputs[] = '<input type="button" id="cai-finish" name="finish" class="btn-main cai-submit" value="' . esc_html__('Finish', 'pprsus') . '" />';
+        $inputs[] = '<input type="button" id="cai-finish" name="finish" class="acf-button button button-primary button-large cai-submit" value="' . esc_html__('Finish', 'pprsus') . '" />';
       }
 
-      $inputs[] = '<input type="button" id="cai-finish-later" name="saveforlater" class="btn-main cai-submit" value="' . esc_html__('Finish Later', 'pprsus') . '" />';
+      //$inputs[] = '<input type="button" id="cai-finish-later" name="saveforlater" class="btn-main cai-submit" value="' . esc_html__('Finish Later', 'pprsus') . '" />';
       $inputs[] = '<input type="hidden" id="direction" name="direction" value="" />';
 
       return implode(' ', $inputs);
@@ -298,13 +343,11 @@ if(!class_exists('PPRSUS_Worksheet')){
           'token' => isset($token) ? $token : $_GET['token']
         );
 
-        if(isset($_POST['direction'])){
-          if($_POST['direction'] == 'previous'){
-            $query_args['step'] = --$current_step;
-          }
-          elseif($_POST['direction'] == 'next'){
-            $query_args['step'] = ++$current_step;
-          }
+        if(isset($_POST['direction']) && $_POST['direction'] == 'previous'){
+          $query_args['step'] = --$current_step;
+        }
+        else{
+          $query_args['step'] = ++$current_step;
         }
       }
       else{

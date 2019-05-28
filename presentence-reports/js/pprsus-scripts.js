@@ -30,7 +30,7 @@ if(validate_worksheet == 'true'){
 
 if (document.getElementById('psr-table')) {
   var dashboard_filter = new TableFilter(document.querySelector('.psr-table'), {
-    base_path: '/wp-content/plugins/presentence-reports/js/',
+    base_path: '/wp-content/plugins/presentence-reports/vendors/tablefilter/',
     filters_row_index: 1,
     clear_filter_text: 'Display All',
     col_0: 'select',
@@ -42,6 +42,7 @@ if (document.getElementById('psr-table')) {
   dashboard_filter.init();
 }
 
+/*
 if (getQueryVariable('worksheet_id') != false) {
   acf.addFilter('validation_complete', function (json, $form) {
     console.log($form);
@@ -64,6 +65,13 @@ function getQueryVariable(variable) {
     }
   }
   return (false);
-}
+}*/
 
+jQuery(document).ready(function($){
+  $('.cai-submit').on('click', function(){
+    var direction = $(this).attr('name');
 
+    $('#direction').val(direction);
+    $('.acf-form').submit();
+  });
+});
