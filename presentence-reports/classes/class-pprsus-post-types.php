@@ -8,10 +8,10 @@ if(!class_exists('PPRSUS_Post_Types')){
     }
 
     public function init(){
-      $this->create_defendant_post_type();
+      $this->create_post_types();
     }
 
-    private function create_defendant_post_type(){
+    public function create_post_types(){
       $defendant_labels = array(
         'name' => esc_html_x('Defendants', 'post type general name', 'pprsus'),
         'singular_name' => esc_html_x('Defendant', 'post type singular name', 'pprsus'),
