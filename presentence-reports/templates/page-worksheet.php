@@ -13,12 +13,13 @@
               </div>
 
               <?php
-                $form_type = '';
-                if(isset($_GET['form_type'])){
-                  $form_type = esc_html($_GET['form_type']);
-                }
+                //$form_type = '';
+                //if(isset($_GET['form_type'])){
+                //  $form_type = esc_html($_GET['form_type']);
+                //}
 
-                echo do_shortcode('[pprsus_worksheet form_post_type="' . $form_type . '"]');
+                //echo do_shortcode('[pprsus_worksheet form_post_type="' . $form_type . '"]');
+                echo do_shortcode('[pprsus_worksheet]');
               ?>
             </div>
           </div>
