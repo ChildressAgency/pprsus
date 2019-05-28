@@ -7,7 +7,7 @@
 if(!defined('ABSPATH')){ exit; }
 
 if(!class_exists('PPRSUS_Worksheet')){
-  class PPRSUS_Worksheet{
+  class PPRSUS_Worksheet Extends PPRSUS_Reports{
     /**
      * the form id, used to identify the specific form being filled out
      * 
@@ -34,7 +34,7 @@ if(!class_exists('PPRSUS_Worksheet')){
     public function __construct(){
       $this->load_dependencies();
 
-      //$this->form_post_type = $param1;
+      $this->form_post_type = $this->get_form_post_type();
       $this->form_id = $this->form_post_type . '_worksheet';
       $this->step_ids = $this->get_form_steps_ids();
 
@@ -72,6 +72,27 @@ if(!class_exists('PPRSUS_Worksheet')){
       return $form_steps;
     }
 
+    public function get_form_post_type(){
+      if(isset($_GET['form_type']) && $_GET['form_type'] !== ''){
+        $post_type = sanitize_key($_GET['form_type']);
+
+        if(post_type_exists($post_type)){
+          $available_post_types = get_post_types(array('_builtin' => false), 'objects');
+
+          foreach($available_post_types as $available_post_type){
+            if($available_post_type->name == 'acf-field-group' || $available_post_type->name == 'acf-field' || $available_post_type->name != $post_type){
+              continue;
+            }
+            else{
+              return $post_type;
+            }
+          }
+        }
+      }
+
+      return false;
+    }
+
     /**
      * skip validation unless the form is finished
      */
@@ -97,22 +118,11 @@ if(!class_exists('PPRSUS_Worksheet')){
      // return ob_get_clean();
     }*/
 
-    public function output_shortcode($atts){
-       $atts = shortcode_atts(array(
-        'form_post_type' => '',
-      ), $atts, 'pprsus_worksheet');
-
-      $this->form_post_type = $atts['form_post_type'];
+    public function output_shortcode(){
 
       ob_start();
 
       if(!function_exists('acf_form')){ return; }
-
-      if(!post_type_exists($this->form_post_type)){
-        $missing_post_type_message = '<p>' . esc_html__('You must set the form post type in the shortcode. ex: [ppsrsus_worksheet form_post_type="post_type"]', 'conversational') . '</p>';
-
-        return $missing_post_type_message;
-      }
 
       if(!$this->current_multistep_form_is_finished()){
         $this->output_acf_form(array('post_type' => $this->form_post_type));
@@ -122,7 +132,7 @@ if(!class_exists('PPRSUS_Worksheet')){
         exit();
       }
 
-      return ob_get_clean();
+      //return ob_get_clean();
     }
 
     /**
@@ -286,7 +296,7 @@ if(!class_exists('PPRSUS_Worksheet')){
       return false;
     }
 
-    private function current_multistep_form_is_finished(){
+    public function current_multistep_form_is_finished(){
       return (isset($_GET['finished']) && 1 === (int) $_GET['finished']);
     }
 

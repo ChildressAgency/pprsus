@@ -29,6 +29,7 @@ if(!class_exists('PPRSUS_Reports')){
   class PPRSUS_Reports{
     public function __construct(){
       $this->load_dependencies();
+
       $this->init();
     }
 
@@ -39,8 +40,9 @@ if(!class_exists('PPRSUS_Reports')){
         add_filter('acf/settings/dir', array($this, 'acf_settings_dir'));
       }
 
-      require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-worksheet.php';
       require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-post-types.php';
+      require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-worksheet.php';
+      //require_once PPRSUS_PLUGIN_DIR . '/includes/worksheet-shortcode.php';
     }
 
     public function init(){
@@ -50,9 +52,16 @@ if(!class_exists('PPRSUS_Reports')){
       add_filter('template_include', array($this, 'load_template'), 99);
 
       $post_types = new PPRSUS_Post_Types();
+      //var_dump(get_post_types());
 
       //add_shortcode('pprsus_dashboard', array($this, 'dashboard_shortcode'));
+      //$worksheet = new PPRSUS_Worksheet();
       //add_shortcode('pprsus_worksheet', array($this, 'worksheet_shortcode'));
+      //new PPRSUS_Worksheet();
+      add_action('init', array($this, 'create_worksheet'));
+    }
+
+    public function create_worksheet(){
       new PPRSUS_Worksheet();
     }
 
@@ -144,30 +153,20 @@ if(!class_exists('PPRSUS_Reports')){
     }
 
     public function worksheet_shortcode($atts){
-      $atts = shortcode_atts(array(
-        'form_post_type' => '',
-      ), $atts, 'pprsus_worksheet');
-
-      $form_post_type = $atts['form_post_type'];
-
-      if(!post_type_exists($form_post_type)){
-        $missing_post_type_message = '<p>' . esc_html__('You must set the form post type in the shortcode. ex: [ppsrsus_worksheet form_post_type="post_type"]', 'conversational') . '</p>';
-
-        return $missing_post_type_message;
-      }
-
-      $worksheet = new PPRSUS_Worksheet($form_post_type);
-
-      ob_start();
-      $worksheet->output_shortcode();
-      return ob_get_clean();
-      //new PPRSUS_Worksheet($form_post_type);
+      $worksheet = new PPRSUS_Worksheet();
 
       //ob_start();
 
+      //new PPRSUS_Worksheet();
       //if(!function_exists('acf_form')){ return; }
 
-      //$worksheet->output_acf_form(array('post_type' => $form_post_type));
+      //if(!$worksheet->current_multistep_form_is_finished()){
+        $worksheet->output_shortcode();
+      //}
+      //else{
+      //  wp_safe_redirect(home_url('dashboard'));
+      //  exit();
+      //}
 
       //return ob_get_clean();
     }
