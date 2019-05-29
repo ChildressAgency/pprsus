@@ -42,7 +42,6 @@ if(!class_exists('PPRSUS_Reports')){
 
       require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-post-types.php';
       require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-worksheet.php';
-      //require_once PPRSUS_PLUGIN_DIR . '/includes/worksheet-shortcode.php';
     }
 
     public function init(){
@@ -52,12 +51,7 @@ if(!class_exists('PPRSUS_Reports')){
       add_filter('template_include', array($this, 'load_template'), 99);
 
       $post_types = new PPRSUS_Post_Types();
-      //var_dump(get_post_types());
 
-      //add_shortcode('pprsus_dashboard', array($this, 'dashboard_shortcode'));
-      //$worksheet = new PPRSUS_Worksheet();
-      //add_shortcode('pprsus_worksheet', array($this, 'worksheet_shortcode'));
-      //new PPRSUS_Worksheet();
       add_action('init', array($this, 'create_worksheet'));
     }
 
@@ -143,34 +137,6 @@ if(!class_exists('PPRSUS_Reports')){
 
       return $template;
     }
-
-    public function dashboard_shortcode($atts){
-      ob_start();
-
-      require_once PPRSUS_PLUGIN_DIR . '/includes/dashboard_shortcode.php';
-
-      return ob_get_clean();
-    }
-
-    public function worksheet_shortcode($atts){
-      $worksheet = new PPRSUS_Worksheet();
-
-      //ob_start();
-
-      //new PPRSUS_Worksheet();
-      //if(!function_exists('acf_form')){ return; }
-
-      //if(!$worksheet->current_multistep_form_is_finished()){
-        $worksheet->output_shortcode();
-      //}
-      //else{
-      //  wp_safe_redirect(home_url('dashboard'));
-      //  exit();
-      //}
-
-      //return ob_get_clean();
-    }
-
   }//end class
 }
 
