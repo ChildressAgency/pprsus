@@ -9,7 +9,7 @@
           <div class="post-content">
             <div class="entry-content">
               <div class="btn-wrapper">
-                <a class="btn" href="<?php echo esc_html(home_url('dashboard')); ?>">&lt; Back to Dashboard</a>
+                <a class="btn" href="<?php echo esc_url(home_url('dashboard')); ?>">&lt; <?php echo esc_html__('Back to Dashboard', 'pprsus'); ?></a>
               </div>
 
               <?php
@@ -19,7 +19,24 @@
                 //}
 
                 //echo do_shortcode('[pprsus_worksheet form_post_type="' . $form_type . '"]');
-                echo do_shortcode('[pprsus_worksheet]');
+                $form_type = 'defendants';
+                if(isset($_GET['form_type'])){
+                  $form_type = $_GET['form_type'];
+                }
+
+                switch($form_type){
+                  case 'medical_history':
+                    $worksheet = 'pprsus_medical_history_worksheet';
+                  break;
+
+                  case 'security':
+                    $worksheet = 'pprsus_security_worksheet';
+                  break;
+
+                  default:
+                    $worksheet = 'pprsus_defendants_worksheet';
+                }
+                echo do_shortcode('[' . $worksheet . ']');
               ?>
             </div>
           </div>

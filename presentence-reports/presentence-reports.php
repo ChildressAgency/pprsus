@@ -42,6 +42,9 @@ if(!class_exists('PPRSUS_Reports')){
 
       require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-post-types.php';
       require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-worksheet.php';
+      require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-defendants-worksheet.php';
+      require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-medical-history-worksheet.php';
+      require_once PPRSUS_PLUGIN_DIR . '/classes/class-pprsus-security-worksheet.php';
     }
 
     public function init(){
@@ -52,11 +55,13 @@ if(!class_exists('PPRSUS_Reports')){
 
       $post_types = new PPRSUS_Post_Types();
 
-      add_action('init', array($this, 'create_worksheet'));
+      add_action('init', array($this, 'create_worksheets'));
     }
 
-    public function create_worksheet(){
-      new PPRSUS_Worksheet();
+    public function create_worksheets(){
+      new PPRSUS_Defendants_Worksheet();
+      new PPRSUS_Medical_History_Worksheet();
+      new PPRSUS_Security_Worksheet();
     }
 
     public function load_textdomain(){
